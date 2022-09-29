@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import { useSession, signOut, signIn } from 'next-auth/react';
+import { Button } from '@chakra-ui/react';
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -8,9 +9,9 @@ const Home: NextPage = () => {
   return (
     <div>
       {session?.user ? (
-        <button onClick={() => signOut()}>Logout</button>
+        <Button onClick={() => signOut()}>Logout</Button>
       ) : (
-        <button onClick={() => signIn('google')}>Login</button>
+        <Button onClick={() => signIn('google')}>Login</Button>
       )}
       {session?.user?.email}
     </div>
