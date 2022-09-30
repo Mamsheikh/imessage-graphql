@@ -12,7 +12,7 @@ type IAuthProps = {
 };
 
 const Auth: React.FC<IAuthProps> = ({ session, reloadSession }) => {
-  const [createUsername] = useMutation<
+  const [createUsername, { loading }] = useMutation<
     CreateUsernameData,
     CreateUsernameVariables
   >(userOperations.Mutations.createUsername);
@@ -49,7 +49,7 @@ const Auth: React.FC<IAuthProps> = ({ session, reloadSession }) => {
               value={username}
               onChange={(event) => setUsername(event.target.value)}
             />
-            <Button width='100%' onClick={onSubmit}>
+            <Button width='100%' onClick={onSubmit} isLoading={loading}>
               Save
             </Button>
           </>
