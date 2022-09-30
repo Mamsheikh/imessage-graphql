@@ -5,13 +5,15 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { theme } from '../chakra/theme';
 import { client } from '../graphq/apollo-client';
 import { ApolloProvider } from '@apollo/client';
+import { Toaster } from 'react-hot-toast';
 
 function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
   return (
     <ApolloProvider client={client}>
       <SessionProvider session={pageProps.session}>
         <ChakraProvider theme={theme}>
-          <Component {...pageProps} />;
+          <Component {...pageProps} />
+          <Toaster />
         </ChakraProvider>
       </SessionProvider>
     </ApolloProvider>
