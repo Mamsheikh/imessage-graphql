@@ -11,6 +11,7 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { userOperations } from '../../../graphql/operations/user';
 import {
   SearchedUser,
@@ -36,6 +37,15 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const onSearch = async (event: React.FormEvent) => {
     event.preventDefault();
     await searchUsers({ variables: { username } });
+  };
+
+  const onCreateConversation = async () => {
+    try {
+      // TODO:
+    } catch (error: any) {
+      console.log('onCreateConversation error', error);
+      toast.error(error?.message);
+    }
   };
 
   const addParticipant = (user: SearchedUser) => {
