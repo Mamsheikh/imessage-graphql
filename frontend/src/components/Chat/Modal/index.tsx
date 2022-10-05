@@ -1,20 +1,19 @@
-import { useLazyQuery, useQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 import {
-  useDisclosure,
   Button,
+  Input,
   Modal,
-  ModalOverlay,
+  ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
+  ModalOverlay,
   Stack,
-  Input,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { userOperations } from '../../../graphql/operations/user';
 import { SearchUsersData, SearchUsersVariables } from '../../../utils/types';
+import UserSearchList from './UserSearchList';
 
 type ModalProps = {
   isOpen: boolean;
@@ -54,6 +53,7 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                 </Button>
               </Stack>
             </form>
+            {data?.searchUsers && <UserSearchList users={data?.searchUsers} />}
           </ModalBody>
         </ModalContent>
       </Modal>
