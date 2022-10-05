@@ -3,9 +3,15 @@ import { SearchedUser } from '../../../utils/types';
 
 interface UserSearchListProps {
   users: Array<SearchedUser>;
+  addParticipant: (user: SearchedUser) => void;
+  removeParticipant: (userId: string) => void;
 }
 
-const UserSearchList: React.FC<UserSearchListProps> = ({ users }) => {
+const UserSearchList: React.FC<UserSearchListProps> = ({
+  users,
+  addParticipant,
+  removeParticipant,
+}) => {
   return (
     <>
       {users.length === 0 ? (
@@ -33,7 +39,11 @@ const UserSearchList: React.FC<UserSearchListProps> = ({ users }) => {
                 py={2}
               >
                 <Text color='whiteAlpha.700'>{user.username}</Text>
-                <Button bg='brand.100' _hover={{ bg: 'brand.100' }}>
+                <Button
+                  bg='brand.100'
+                  _hover={{ bg: 'brand.100' }}
+                  onClick={() => addParticipant(user)}
+                >
                   Select
                 </Button>
               </Flex>
