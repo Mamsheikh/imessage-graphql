@@ -3,8 +3,8 @@ import { gql } from '@apollo/client';
 export const userOperations = {
   Queries: {
     searchUsers: gql`
-      query SearchUsers($username: String!) {
-        searchUser(username: $username) {
+      query searchUsers($username: String!) {
+        searchUsers(username: $username) {
           id
           username
         }

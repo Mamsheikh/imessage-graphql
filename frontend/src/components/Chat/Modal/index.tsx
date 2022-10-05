@@ -27,6 +27,7 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     SearchUsersData,
     SearchUsersVariables
   >(userOperations.Queries.searchUsers);
+  console.log('search users', data);
 
   const onSearch = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -48,7 +49,7 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
                 />
-                <Button type='submit' disabled={!username}>
+                <Button type='submit' disabled={!username} isLoading={loading}>
                   Search
                 </Button>
               </Stack>
