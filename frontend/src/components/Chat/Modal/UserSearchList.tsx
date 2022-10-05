@@ -25,7 +25,7 @@ const UserSearchList: React.FC<UserSearchListProps> = ({ users }) => {
               direction={'row'}
               _hover={{ bg: 'whiteAlpha.200' }}
             >
-              <Avatar />
+              <Avatar src={user.image} />
               <Flex
                 justify='space-between'
                 align='center'
