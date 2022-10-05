@@ -39,7 +39,7 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent bg='#2d2d2d' pb={4}>
-          <ModalHeader>Modal Title</ModalHeader>
+          <ModalHeader>Create a conversation</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <form onSubmit={onSearch}>
