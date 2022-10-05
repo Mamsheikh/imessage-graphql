@@ -4,13 +4,11 @@ import { SearchedUser } from '../../../utils/types';
 interface UserSearchListProps {
   users: Array<SearchedUser>;
   addParticipant: (user: SearchedUser) => void;
-  removeParticipant: (userId: string) => void;
 }
 
 const UserSearchList: React.FC<UserSearchListProps> = ({
   users,
   addParticipant,
-  removeParticipant,
 }) => {
   return (
     <>

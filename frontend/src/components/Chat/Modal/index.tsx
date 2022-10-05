@@ -17,6 +17,7 @@ import {
   SearchUsersData,
   SearchUsersVariables,
 } from '../../../utils/types';
+import Participants from './Participants';
 import UserSearchList from './UserSearchList';
 
 type ModalProps = {
@@ -31,7 +32,6 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     SearchUsersData,
     SearchUsersVariables
   >(userOperations.Queries.searchUsers);
-  console.log('search users', data);
 
   const onSearch = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -39,6 +39,9 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   const addParticipant = (user: SearchedUser) => {
+    for (let i = 0; i < participants.length; i++) {
+      if (user === participants[i]) return;
+    }
     setParticipants((prev) => [...prev, user]);
     setUsername('');
   };
@@ -71,6 +74,11 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
               <UserSearchList
                 users={data?.searchUsers}
                 addParticipant={addParticipant}
+              />
+            )}
+            {participants.length !== 0 && (
+              <Participants
+                participants={participants}
                 removeParticipant={removeParticipant}
               />
             )}
