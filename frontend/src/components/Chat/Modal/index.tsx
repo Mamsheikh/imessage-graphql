@@ -77,10 +77,20 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
               />
             )}
             {participants.length !== 0 && (
-              <Participants
-                participants={participants}
-                removeParticipant={removeParticipant}
-              />
+              <>
+                <Participants
+                  participants={participants}
+                  removeParticipant={removeParticipant}
+                />
+                <Button
+                  bg='brand.100'
+                  width='100%'
+                  mt={6}
+                  _hover={{ bg: 'brand.100' }}
+                >
+                  Create Conversation
+                </Button>
+              </>
             )}
           </ModalBody>
         </ModalContent>
