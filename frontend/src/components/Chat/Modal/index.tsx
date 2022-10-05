@@ -1,4 +1,4 @@
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import {
   Button,
   Input,
@@ -10,10 +10,14 @@ import {
   ModalOverlay,
   Stack,
 } from '@chakra-ui/react';
+import { Session } from 'next-auth';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { conversationOperations } from '../../../graphql/operations/conversation';
 import { userOperations } from '../../../graphql/operations/user';
 import {
+  CreateConversationData,
+  CreateConversationVariables,
   SearchedUser,
   SearchUsersData,
   SearchUsersVariables,
@@ -22,17 +26,29 @@ import Participants from './Participants';
 import UserSearchList from './UserSearchList';
 
 type ModalProps = {
+  session: Session;
   isOpen: boolean;
   onClose: () => void;
 };
 
-const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+const ConversationModal: React.FC<ModalProps> = ({
+  session,
+  isOpen,
+  onClose,
+}) => {
+  const {
+    user: { id: userId },
+  } = session;
   const [username, setUsername] = useState('');
   const [participants, setParticipants] = useState<SearchedUser[]>([]);
   const [searchUsers, { data, loading }] = useLazyQuery<
     SearchUsersData,
     SearchUsersVariables
   >(userOperations.Queries.searchUsers);
+  const [createConversation, { loading: conversationLoading }] = useMutation<
+    CreateConversationData,
+    CreateConversationVariables
+  >(conversationOperations.Mutations.createConversation);
 
   const onSearch = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -40,8 +56,12 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   const onCreateConversation = async () => {
+    const participantsId = [userId, ...participants.map((p) => p.id)];
     try {
-      // TODO:
+      const { data } = await createConversation({
+        variables: { participantsId },
+      });
+      console.log('create conversate', data);
     } catch (error: any) {
       console.log('onCreateConversation error', error);
       toast.error(error?.message);
@@ -49,9 +69,11 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   const addParticipant = (user: SearchedUser) => {
-    for (let i = 0; i < participants.length; i++) {
-      if (user === participants[i]) return;
-    }
+    // for (let i = 0; i < participants.length; i++) {
+    //   if (user === participants[i]) return;
+    // }
+    const participantsId = participants.map((p) => p.id);
+    if (user.id in participantsId) return;
     setParticipants((prev) => [...prev, user]);
     setUsername('');
   };
@@ -97,6 +119,8 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   width='100%'
                   mt={6}
                   _hover={{ bg: 'brand.100' }}
+                  isLoading={conversationLoading}
+                  onClick={onCreateConversation}
                 >
                   Create Conversation
                 </Button>
