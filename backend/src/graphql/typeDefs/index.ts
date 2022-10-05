@@ -1,6 +1,7 @@
 import userTypeDefs from './user';
-import merge from 'lodash.merge';
+import conversationTypeDefs from './conversation';
+// import merge from 'lodash.merge';
 
-const typeDefs = merge({}, userTypeDefs);
+const typeDefs = [userTypeDefs, conversationTypeDefs];
 
 export default typeDefs;
