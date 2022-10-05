@@ -20,6 +20,12 @@ type ModalProps = {
 
 const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [username, setUsername] = useState('');
+
+  const onSearch = async (event: React.FormEvent) => {
+    event.preventDefault();
+    console.log('onsubmit');
+  };
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -28,7 +34,7 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           <ModalHeader>Modal Title</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <form>
+            <form onSubmit={onSearch}>
               <Stack spacing={4}>
                 <Input
                   placeholder='Enter a username'
