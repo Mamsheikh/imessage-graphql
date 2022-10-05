@@ -1,12 +1,12 @@
 import type { NextPage, NextPageContext } from 'next';
 import { useSession, signOut, signIn, getSession } from 'next-auth/react';
-import { Box, Button } from '@chakra-ui/react';
+import { Box, Button, useColorMode } from '@chakra-ui/react';
 import Chat from '../components/Chat';
 import Auth from '../components/Auth';
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
-  console.log(session);
+  // console.log(session);
 
   const reloadSession = () => {
     const event = new Event('visibilitychange');
