@@ -69,11 +69,11 @@ const ConversationModal: React.FC<ModalProps> = ({
   };
 
   const addParticipant = (user: SearchedUser) => {
-    // for (let i = 0; i < participants.length; i++) {
-    //   if (user === participants[i]) return;
-    // }
     const participantsId = participants.map((p) => p.id);
-    if (user.id in participantsId) return;
+    for (let i = 0; i < participantsId.length; i++) {
+      const element = participantsId[i];
+      if (user.id === element) return;
+    }
     setParticipants((prev) => [...prev, user]);
     setUsername('');
   };
