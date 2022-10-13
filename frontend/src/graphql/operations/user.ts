@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const userOperations = {
+// eslint-disable-next-line import/no-anonymous-default-export
+export default {
   Queries: {
     searchUsers: gql`
       query searchUsers($username: String!) {
