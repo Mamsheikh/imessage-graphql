@@ -62,7 +62,7 @@ model Conversation {
   id              String                    @id @default(auto()) @map("_id") @db.ObjectId
   participants    ConversationParticipant[]
   messages        Message[]
-  latestMessageId String                    @unique
+  latestMessageId String?                   @unique
   latestMessage   Message?                  @relation(name: "latestConversationMessage", fields: [latestMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt       DateTime                  @default(now())
   updatedAt       DateTime                  @updatedAt
@@ -76,7 +76,7 @@ model ConversationParticipant {
   conversationId       String       @db.ObjectId
   hasSeenLatestMessage Boolean
   createdAt            DateTime     @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime     @updatedAt
 }
 
 model Message {
