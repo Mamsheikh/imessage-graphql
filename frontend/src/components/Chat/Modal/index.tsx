@@ -14,7 +14,7 @@ import { Session } from 'next-auth';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { conversationOperations } from '../../../graphql/operations/conversation';
-import { userOperations } from '../../../graphql/operations/user';
+import userOperations from '../../../graphql/operations/user';
 import {
   CreateConversationData,
   CreateConversationVariables,
@@ -56,10 +56,10 @@ const ConversationModal: React.FC<ModalProps> = ({
   };
 
   const onCreateConversation = async () => {
-    const participantsId = [userId, ...participants.map((p) => p.id)];
+    const participantIds = [userId, ...participants.map((p) => p.id)];
     try {
       const { data } = await createConversation({
-        variables: { participantsId },
+        variables: { participantIds },
       });
       console.log('create conversate', data);
     } catch (error: any) {

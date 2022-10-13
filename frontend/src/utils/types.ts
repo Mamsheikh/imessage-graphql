@@ -31,7 +31,7 @@ export interface SearchedUser {
  */
 
 export interface CreateConversationVariables {
-  participantsId: string[];
+  participantIds: string[];
 }
 
 export interface CreateConversationData {

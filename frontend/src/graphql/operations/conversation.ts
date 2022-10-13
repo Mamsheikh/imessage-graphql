@@ -4,8 +4,8 @@ export const conversationOperations = {
   Queries: {},
   Mutations: {
     createConversation: gql`
-      mutation createConversation($participantsId: [String]!) {
-        createConversation(participantsId: $participantsId) {
+      mutation createConversation($participantIds: [String]!) {
+        createConversation(participantIds: $participantIds) {
           conversationId
         }
       }
