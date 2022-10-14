@@ -5,10 +5,18 @@ const typeDefs = gql`
     id: String
     username: String
     image: String
+    email: String
+    emailVerified: Boolean
+  }
+
+  type SearchedUser {
+    id: String
+    username: String
+    image: String
   }
 
   type Query {
-    searchUsers(username: String): [User]
+    searchUsers(username: String): [SearchedUser]
   }
 
   type Mutation {
