@@ -3,6 +3,7 @@ import { Session } from 'next-auth';
 import { useState } from 'react';
 import { ConversationPopulated } from '../../../../../backend/src/utils/types';
 import ConversationModal from '../Modal/index';
+import ConversationItem from './ConversationItem';
 
 interface ConversationListProps {
   session: Session;
@@ -34,6 +35,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
         </Text>
       </Box>
       <ConversationModal session={session} isOpen={isOpen} onClose={onClose} />
+      {conversations.map((conversation) => (
+        <ConversationItem conversation={conversation} key={conversation.id} />
+      ))}
     </Box>
   );
 };
