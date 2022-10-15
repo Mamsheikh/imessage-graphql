@@ -8,27 +8,53 @@ import {
 import express from 'express';
 import http from 'http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
+import { PubSub } from 'graphql-subscriptions';
 import * as dotenv from 'dotenv';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { GraphQLContext, Session } from './utils/types';
+import { GraphQLContext, Session, SubscritionContext } from './utils/types';
 
 async function main() {
   dotenv.config();
   const app = express();
   const httpServer = http.createServer(app);
 
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/graphql/subscriptions',
+  });
+
   const schema = makeExecutableSchema({
     typeDefs,
     resolvers,
   });
 
+  const pubsub = new PubSub();
+  const prisma = new PrismaClient();
+
+  // Save the returned server's info so we can shutdown this server later
+  const serverCleanup = useServer(
+    {
+      schema,
+      context: async (ctx: SubscritionContext): Promise<GraphQLContext> => {
+        if (ctx.connectionParams && ctx.connectionParams.session) {
+          const { session } = ctx.connectionParams;
+
+          return { session, prisma, pubsub };
+        }
+
+        return { session: null, prisma, pubsub };
+      },
+    },
+    wsServer
+  );
+
   const corsOptions = {
     origin: process.env.CLIENT_ORIGIN,
     credentials: true,
   };
-
-  const prisma = new PrismaClient();
 
   const server = new ApolloServer({
     schema,
@@ -38,11 +64,22 @@ async function main() {
       const session = (await getSession({ req })) as Session;
       // console.log('CONTEXT SESSION', session);
 
-      return { session, prisma };
+      return { session, prisma, pubsub };
     },
     plugins: [
+      // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),
-      ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+
+      // Proper shutdown for the WebSocket server.
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
     ],
   });
   await server.start();
