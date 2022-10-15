@@ -5,7 +5,7 @@ const typeDefs = gql`
     id: String
     sender: User
     body: String
-    created: Date
+    createdAt: Date
   }
 `;
 

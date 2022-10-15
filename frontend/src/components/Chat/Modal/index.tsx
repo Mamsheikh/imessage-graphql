@@ -14,7 +14,7 @@ import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { conversationOperations } from '../../../graphql/operations/conversation';
+import conversationOperations from '../../../graphql/operations/conversation';
 import userOperations from '../../../graphql/operations/user';
 import {
   CreateConversationData,
