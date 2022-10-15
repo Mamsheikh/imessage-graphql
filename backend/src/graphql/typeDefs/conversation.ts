@@ -27,6 +27,10 @@ const typeDefs = gql`
     user: User
     hasSeenLatestMessage: Boolean
   }
+
+  type Subscription {
+    conversionCreated: Conversation
+  }
 `;
 
 export default typeDefs;
