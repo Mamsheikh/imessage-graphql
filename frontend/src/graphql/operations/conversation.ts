@@ -1,11 +1,7 @@
 import { gql } from '@apollo/client';
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default {
-  Queries: {
-    conversations: gql`
-      query Conversations {
-        conversations {
+const ConversationsFields = `
+  
           id
           participants {
             user {
@@ -24,6 +20,16 @@ export default {
             createdAt
           }
           updatedAt
+  
+`;
+
+// eslint-disable-next-line import/no-anonymous-default-export
+export default {
+  Queries: {
+    conversations: gql`
+      query Conversations {
+        conversations {
+          ${ConversationsFields}
         }
       }
     `,
@@ -37,5 +43,13 @@ export default {
       }
     `,
   },
-  Subscriptions: {},
+  Subscriptions: {
+    conversationCreated: gql`
+      subscription ConversationCreated {
+        conversationCreated {
+          ${ConversationsFields}
+        }
+      }
+    `,
+  },
 };

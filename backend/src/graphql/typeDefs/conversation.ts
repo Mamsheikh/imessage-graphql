@@ -29,7 +29,7 @@ const typeDefs = gql`
   }
 
   type Subscription {
-    conversionCreated: Conversation
+    conversationCreated: Conversation
   }
 `;
 
