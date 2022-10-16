@@ -15,7 +15,10 @@ import { GoPrimitiveDot } from 'react-icons/go';
 import { MdDeleteOutline } from 'react-icons/md';
 import { BiLogOut } from 'react-icons/bi';
 import { AiOutlineEdit } from 'react-icons/ai';
-import { formatUsernames } from '../../../utils/functions';
+import {
+  formatUsernames,
+  showParticipantImage,
+} from '../../../utils/functions';
 import { ConversationPopulated } from '../../../../../backend/src/utils/types';
 // import { ConversationPopulated } from "../../../../../backend/src/util/types";
 
@@ -115,6 +118,9 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           <GoPrimitiveDot fontSize={18} color="#6B46C1" />
         )}
       </Flex> */}
+      {/* {conversation.participants.map((p) => (
+        <Avatar key={p.id} src={p.user.image} />
+      ))} */}
       <Avatar />
       <Flex justify='space-between' width='80%' height='100%'>
         <Flex direction='column' width='70%' height='100%'>

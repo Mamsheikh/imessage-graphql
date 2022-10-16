@@ -10,3 +10,14 @@ export const formatUsernames = (
 
   return usernames.join(', ');
 };
+
+export const showParticipantImage = (
+  participants: Array<ParticipantPopulated>,
+  myUserId: string
+) => {
+  const userImages = participants
+    .filter((participant) => participant.user.id != myUserId)
+    .map((participant) => participant.user.image);
+
+  return userImages.join('');
+};

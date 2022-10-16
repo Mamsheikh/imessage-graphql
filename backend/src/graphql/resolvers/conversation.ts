@@ -115,7 +115,7 @@ export interface ConversationCreatedSubscriptionPayload {
 
 export const participatsPopulated =
   Prisma.validator<Prisma.ConversationParticipantInclude>()({
-    user: { select: { id: true, username: true } },
+    user: { select: { id: true, username: true, image: true } },
   });
 
 export const conversationPopulated =
@@ -124,7 +124,9 @@ export const conversationPopulated =
       include: participatsPopulated,
     },
     latestMessage: {
-      include: { sender: { select: { id: true, username: true } } },
+      include: {
+        sender: { select: { id: true, username: true, image: true } },
+      },
     },
   });
 export default resolvers;

@@ -20,7 +20,13 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
       direction='column'
     >
       {conversationId ? (
-        <Flex>{conversationId}</Flex>
+        <Flex
+          direction='column'
+          justify='space-between'
+          overflow='hidden'
+          flexGrow={1}
+          border='1px solid red'
+        ></Flex>
       ) : (
         <div>No conversation selected </div>
       )}

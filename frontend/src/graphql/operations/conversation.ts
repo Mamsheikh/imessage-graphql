@@ -7,6 +7,7 @@ const ConversationsFields = `
             user {
               id
               username
+              image
             }
             hasSeenLatestMessage
           }
@@ -15,6 +16,7 @@ const ConversationsFields = `
             sender {
               id
               username
+              image
             }
             body
             createdAt

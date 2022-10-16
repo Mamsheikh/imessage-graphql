@@ -24,6 +24,8 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     conversationOperations.Queries.conversations
   );
   const router = useRouter();
+
+  const { conversationId } = router.query;
   const onViewConversation = async (conversationId: string) => {
     //push the conversatinId to the router query param
 
@@ -62,8 +64,8 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
 
   return (
     <Box
+      display={{ base: conversationId ? 'none' : 'flex', md: 'flex' }}
       width={{ base: '100%', md: '400px' }}
-      // border='1px solid red'
       bg='whiteAlpha.50'
       py={6}
       px={3}
