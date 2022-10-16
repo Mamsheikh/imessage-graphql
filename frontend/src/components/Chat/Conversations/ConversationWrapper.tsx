@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
 import { Session } from 'next-auth';
+import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { ConversationPopulated } from '../../../../../backend/src/utils/types';
 import conversationOperations from '../../../graphql/operations/conversation';
@@ -22,8 +23,14 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
   } = useQuery<ConversationsData, null>(
     conversationOperations.Queries.conversations
   );
+  const router = useRouter();
+  const onViewConversation = async (conversationId: string) => {
+    //push the conversatinId to the router query param
 
-  console.log('query data', conversationsData);
+    router.push({ query: { conversationId } });
+
+    //2. marked the conversation as read
+  };
 
   const subscribeToNewConversations = () => {
     subscribeToMore({
@@ -38,8 +45,6 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
           };
         }
       ) => {
-        console.log('subscription data', subscriptionData);
-
         if (!subscriptionData.data) return prev;
 
         const newConversation = subscriptionData.data.conversationCreated;
@@ -67,6 +72,7 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
       <ConversationList
         session={session}
         conversations={conversationsData?.conversations || []}
+        onViewConversation={onViewConversation}
       />
     </Box>
   );
