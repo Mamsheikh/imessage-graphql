@@ -1,5 +1,6 @@
 import {
   Avatar,
+  AvatarGroup,
   Box,
   Flex,
   Menu,
@@ -118,9 +119,11 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           <GoPrimitiveDot fontSize={18} color="#6B46C1" />
         )}
       </Flex> */}
-      {/* {conversation.participants.map((p) => (
-        <Avatar key={p.id} src={p.user.image} />
-      ))} */}
+      {/* <AvatarGroup size='sm' max={2}>
+        {conversation.participants.map((p: ConversationPopulated) => (
+          <Avatar name={p.username} key={p.id} src={p.user.image} />
+        ))}
+      </AvatarGroup> */}
       <Avatar />
       <Flex justify='space-between' width='80%' height='100%'>
         <Flex direction='column' width='70%' height='100%'>
