@@ -1,11 +1,13 @@
 import { useQuery } from '@apollo/client';
-import { Box } from '@chakra-ui/react';
+import { Box, Button } from '@chakra-ui/react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { AiOutlineMenu } from 'react-icons/ai';
 import { ConversationPopulated } from '../../../../../backend/src/utils/types';
 import conversationOperations from '../../../graphql/operations/conversation';
 import { ConversationsData } from '../../../utils/types';
+import { Sidebar } from '../../Sidebar';
 import ConversationList from './ConversationList';
 
 interface ConversationWrapperProps {
@@ -71,6 +73,8 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
       px={3}
     >
       {/* Skeleton lOader */}
+      {/* <Sidebar /> */}
+
       <ConversationList
         session={session}
         conversations={conversationsData?.conversations || []}

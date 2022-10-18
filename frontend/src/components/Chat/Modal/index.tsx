@@ -1,6 +1,8 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 import {
+  Avatar,
   Button,
+  Flex,
   Input,
   Modal,
   ModalBody,
@@ -9,13 +11,22 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
 } from '@chakra-ui/react';
+import { Step, Steps, useSteps } from 'chakra-ui-steps';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { FormEvent, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { AiFillCamera } from 'react-icons/ai';
 import conversationOperations from '../../../graphql/operations/conversation';
 import userOperations from '../../../graphql/operations/user';
+import { checkImage } from '../../../utils/functions';
 import {
   CreateConversationData,
   CreateConversationVariables,
@@ -41,8 +52,15 @@ const ConversationModal: React.FC<ModalProps> = ({
     user: { id: userId },
   } = session;
   const [username, setUsername] = useState('');
+  const [file, setFile] = useState();
+  const inputAvatarRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [participants, setParticipants] = useState<SearchedUser[]>([]);
+  const [groupName, setGroupName] = useState('');
+  const { nextStep, prevStep, setStep, reset, activeStep } = useSteps({
+    initialStep: 0,
+  });
+
   const [searchUsers, { data, loading }] = useLazyQuery<
     SearchUsersData,
     SearchUsersVariables
@@ -57,6 +75,33 @@ const ConversationModal: React.FC<ModalProps> = ({
     await searchUsers({ variables: { username } });
   };
 
+  const step1 = (
+    <form onSubmit={onSearch}>
+      <Stack spacing={4}>
+        <Input
+          placeholder='Enter a Group name'
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+        />
+        <Button type='submit' disabled={!username} isLoading={loading}>
+          Search
+        </Button>
+      </Stack>
+    </form>
+  );
+
+  const step2 = (
+    <form>
+      <Stack spacing={4}>
+        <Input placeholder='Enter a username' />
+      </Stack>
+    </form>
+  );
+  const steps = [
+    { label: 'Step 1', step1 },
+    { label: 'Step 2', step2 },
+    { label: 'Step 3', step1 },
+  ];
   const onCreateConversation = async () => {
     const participantIds = [userId, ...participants.map((p) => p.id)];
     try {
@@ -99,6 +144,18 @@ const ConversationModal: React.FC<ModalProps> = ({
     setParticipants((prev) => prev.filter((p) => p.id !== userId));
   };
 
+  const handleAvatar = async (e: any) => {
+    const file = e.target.files[0];
+
+    const err = checkImage(file);
+    if (err) toast.error(err);
+
+    // console.log(image);
+
+    setFile(file);
+  };
+  console.log(file);
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -107,18 +164,151 @@ const ConversationModal: React.FC<ModalProps> = ({
           <ModalHeader>Create a conversation</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <form onSubmit={onSearch}>
-              <Stack spacing={4}>
-                <Input
-                  placeholder='Enter a username'
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
-                />
-                <Button type='submit' disabled={!username} isLoading={loading}>
-                  Search
-                </Button>
-              </Stack>
-            </form>
+            <Tabs isFitted variant='enclosed'>
+              <TabList mb='1em'>
+                <Tab>Create a conversation</Tab>
+                <Tab>Create a group</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <form onSubmit={onSearch}>
+                    <Stack spacing={4}>
+                      <Input
+                        placeholder='Enter a username'
+                        value={username}
+                        onChange={(event) => setUsername(event.target.value)}
+                      />
+                      <Button
+                        type='submit'
+                        disabled={!username}
+                        isLoading={loading}
+                      >
+                        Search
+                      </Button>
+                    </Stack>
+                  </form>
+                </TabPanel>
+                <TabPanel>
+                  <Flex flexDir='column' width='100%'>
+                    <Steps activeStep={activeStep} width='100%'>
+                      <Step>
+                        <form onSubmit={onSearch}>
+                          <Flex p={4}>
+                            <Avatar
+                              src={file && URL.createObjectURL(file)}
+                              mr={4}
+                              ref={inputAvatarRef}
+                              size='lg'
+                              cursor='pointer'
+                              icon={
+                                <AiFillCamera
+                                // _hover={{ color: 'whiteAlpha.300' }}
+                                />
+                              }
+                              onClick={() =>
+                                inputAvatarRef.current &&
+                                inputAvatarRef.current.click()
+                              }
+                            />
+                            <input
+                              type='file'
+                              name='avatar'
+                              ref={inputAvatarRef}
+                              id='avatar'
+                              accept='image/*'
+                              onChange={handleAvatar}
+                              style={{ display: 'none' }}
+                            />
+                            <Input
+                              placeholder='Enter a Group name'
+                              value={groupName}
+                              onChange={(event) =>
+                                setGroupName(event.target.value)
+                              }
+                              variant='flushed'
+                            />
+                            {/* <Button
+                                type='submit'
+                                disabled={!username}
+                                isLoading={loading}
+                              >
+                                Search
+                              </Button> */}
+                          </Flex>
+                        </form>
+                      </Step>
+                      <Step>
+                        <form onSubmit={onSearch}>
+                          <Text justifySelf='center' size='14px'>
+                            Add Participants
+                          </Text>
+                          <Flex p={4} justify='space-evenly'>
+                            <Input
+                              placeholder='Enter a  username'
+                              value={username}
+                              onChange={(event) =>
+                                setUsername(event.target.value)
+                              }
+                            />
+                          </Flex>
+                          <Button
+                            type='submit'
+                            disabled={!username}
+                            isLoading={loading}
+                            w='100%'
+                            mb={4}
+                          >
+                            Search
+                          </Button>
+                        </form>
+                      </Step>
+                    </Steps>
+                    {activeStep === steps.length - 1 ? (
+                      <>
+                        <Flex p={4} align='center'>
+                          <Avatar
+                            src={file && URL.createObjectURL(file)}
+                            mr={4}
+                            size='lg'
+                            cursor='pointer'
+                            icon={<AiFillCamera />}
+                          />
+                          <Text align='center'>{groupName}</Text>
+                        </Flex>
+                        <Flex w='100%' justify='flex-end'>
+                          <Button
+                            isDisabled={activeStep === 0}
+                            mr={4}
+                            onClick={prevStep}
+                            size='sm'
+                            variant='ghost'
+                            alignContent='end'
+                          >
+                            Prev
+                          </Button>
+                        </Flex>
+                      </>
+                    ) : (
+                      <Flex width='100%' justify='flex-end'>
+                        <Button
+                          isDisabled={activeStep === 0}
+                          mr={4}
+                          onClick={prevStep}
+                          size='sm'
+                          variant='ghost'
+                        >
+                          Prev
+                        </Button>
+                        <Button size='sm' onClick={nextStep}>
+                          {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                        </Button>
+                      </Flex>
+                    )}
+                  </Flex>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+
             {data?.searchUsers && (
               <UserSearchList
                 users={data?.searchUsers}

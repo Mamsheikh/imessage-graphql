@@ -1,8 +1,10 @@
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Text } from '@chakra-ui/react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { AiOutlineMenu } from 'react-icons/ai';
 import { ConversationPopulated } from '../../../../../backend/src/utils/types';
+import { Sidebar } from '../../Sidebar';
 import ConversationModal from '../Modal/index';
 import ConversationItem from './ConversationItem';
 
