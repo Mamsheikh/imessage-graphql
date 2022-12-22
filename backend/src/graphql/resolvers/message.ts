@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { GraphQLError } from "graphql";
-import { GraphQLContext, SendMessageArgs } from "../../utils/types";
+import { withFilter } from "graphql-subscriptions";
+import { GraphQLContext, MessageSentSubscriptionPayload, SendMessageArgs } from "../../utils/types";
 
 const resolvers = {
     Query: {},
@@ -69,11 +70,11 @@ const resolvers = {
                 })
 
                 pubsub.publish("MESSAGE_SENT", { messageSent: newMessage })
-                pubsub.publish("CONVERSATION_UPDATED", {
-                    conversationUpdated: {
-                        conversation
-                    }
-                })
+                // pubsub.publish("CONVERSATION_UPDATED", {
+                //     conversationUpdated: {
+                //         conversation
+                //     }
+                // })
             } catch (error) {
                 console.log('send message error', error);
                 throw new GraphQLError("Error sending message")
@@ -82,7 +83,15 @@ const resolvers = {
             return true
         }
     },
-    Subscription: {}
+    Subscription: {
+        messageSent: {
+            subscribe: withFilter((_: any, __: any, context: GraphQLContext) => {
+                return context.pubsub.asyncIterator(['MESSAGE_SENT'])
+            }, (payload: MessageSentSubscriptionPayload, args: { conversationId: string }, context: GraphQLContext) => {
+                return payload.messageSent.conversationId === args.conversationId
+            })
+        }
+    }
 }
 
 export const messagePopulated = Prisma.validator<Prisma.MessageInclude>()({

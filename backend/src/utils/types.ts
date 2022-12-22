@@ -6,6 +6,7 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { ISODateString } from 'next-auth';
 import { PubSub } from 'graphql-subscriptions';
 import { Context } from 'graphql-ws/lib/server';
+import { messagePopulated } from '../graphql/resolvers/message';
 
 export interface GraphQLContext {
   session: Session | null;
@@ -52,8 +53,14 @@ export type ParticipantPopulated = Prisma.ConversationParticipantGetPayload<{
 /* MESSAGES */
 export interface SendMessageArgs {
   id: string;
-  conversationId:string;
+  conversationId: string;
   senderId: string;
-  body:string;
-  
+  body: string;
+
 }
+
+export interface MessageSentSubscriptionPayload {
+  messageSent: MessagePopulated
+}
+
+export type MessagePopulated = Prisma.MessageGetPayload<{ include: typeof messagePopulated }>
