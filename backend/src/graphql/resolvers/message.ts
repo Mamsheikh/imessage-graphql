@@ -1,10 +1,58 @@
 import { Prisma } from "@prisma/client";
 import { GraphQLError } from "graphql";
 import { withFilter } from "graphql-subscriptions";
-import { GraphQLContext, MessageSentSubscriptionPayload, SendMessageArgs } from "../../utils/types";
+import { userIsParticipant } from "../../utils/functions";
+import { GraphQLContext, MessagePopulated, MessageSentSubscriptionPayload, SendMessageArgs } from "../../utils/types";
+import { conversationPopulated } from "./conversation";
 
 const resolvers = {
-    Query: {},
+    Query: {
+        messages: async (_: any, args: { conversationId: string }, context: GraphQLContext): Promise<Array<MessagePopulated>> => {
+            const { session, prisma } = context
+            const { conversationId } = args
+
+            if (!session?.user) {
+                throw new GraphQLError("Not authorized")
+            }
+
+            const { id: userId } = session.user
+
+            const conversation = await prisma.conversation.findUnique({
+                where: { id: conversationId },
+                include: conversationPopulated
+            })
+
+            if (!conversation) {
+                throw new GraphQLError("conversation not found")
+            }
+
+            const allowedToView = userIsParticipant(conversation.participants, userId)
+
+            if (!allowedToView) {
+                throw new GraphQLError("not authorized")
+            }
+
+            try {
+                const messages = await prisma.message.findMany({
+                    where: {
+                        conversationId
+                    },
+                    include: messagePopulated,
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                })
+
+                return messages
+            } catch (error: any) {
+                console.log('query messages error', error);
+                throw new GraphQLError(error?.message)
+
+            }
+
+
+        }
+    },
     Mutation: {
         sendMessage: async (
             _: any,
