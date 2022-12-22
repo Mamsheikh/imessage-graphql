@@ -3,6 +3,7 @@ import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
 import React from 'react';
 import MessagesHeader from './Messages/Header';
+import MessageInput from './Messages/Input';
 
 interface FeedWrapperProps {
   session: Session;
@@ -21,6 +22,7 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
       direction='column'
     >
       {conversationId && typeof conversationId === 'string' ? (
+        <>
         <Flex
           direction='column'
           justify='space-between'
@@ -32,6 +34,8 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
             userId={session.user.id}
           />
         </Flex>
+        <MessageInput conversationId={conversationId} session={session} />
+        </>
       ) : (
         <div>No conversation selected </div>
       )}
