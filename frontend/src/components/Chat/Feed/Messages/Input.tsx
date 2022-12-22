@@ -1,49 +1,50 @@
-import { Box, Input } from "@chakra-ui/react";
-import { Session } from "next-auth";
-import React, { useState } from "react";
-import toast from "react-hot-toast";
+import { Box, Input } from '@chakra-ui/react';
+import { Session } from 'next-auth';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
-interface  MessageInputProps {
-    session:Session;
-    conversationId: string;
+interface MessageInputProps {
+  session: Session;
+  conversationId: string;
 }
 
-const MessageInput = ({conversationId, session}:MessageInputProps) => {
-    const [messageBody, setMessageBody] = useState("")
+const MessageInput: React.FC<MessageInputProps> = ({
+  conversationId,
+  session,
+}) => {
+  const [messageBody, setMessageBody] = useState('');
 
-    const onSendMessage = async(event:React.FormEvent) => {
-        event.preventDefault();
+  const onSendMessage = async (event: React.FormEvent) => {
+    event.preventDefault();
 
-        try {
-            //TODO: call sendMessage mutation
-        } catch (error:any) {
-            console.log("onSendMessage error", error)
-            toast.error(error?.message)
-        }
+    try {
+      //TODO: call sendMessage mutation
+    } catch (error: any) {
+      console.log('onSendMessage error', error);
+      toast.error(error?.message);
     }
-    return (
-        <Box px={4} py={6} width='100%'>
-            <form onSubmit={() => {}}>
-                <Input 
-                value={messageBody}
-                onChange={(event) => setMessageBody(event.target.value)}
-                size='md'
-                resize='none'
-                placeholder="New message"
-                _focus={{
-                    boxShadow: 'none',
-                    border: '1px solid',
-                    borderColor:"whiteAlpha.300"
-
-                }}
-                _hover={{
-                    borderColor: "whiteAlpha.300"
-                }}
-                />
-            </form>
-        </Box>
-    )
-}
-
+  };
+  return (
+    <Box px={4} py={6} width='100%'>
+      <form onSubmit={() => {}}>
+        <Input
+          value={messageBody}
+          onChange={(event) => setMessageBody(event.target.value)}
+          size='md'
+          resize='none'
+          placeholder='New message'
+          _focus={{
+            boxShadow: 'none',
+            border: '1px solid',
+            borderColor: 'whiteAlpha.300',
+          }}
+          _hover={{
+            borderColor: 'whiteAlpha.300',
+          }}
+        />
+      </form>
+    </Box>
+  );
+};
 
 export default MessageInput;
