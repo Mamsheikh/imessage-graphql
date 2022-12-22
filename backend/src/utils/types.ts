@@ -47,3 +47,13 @@ export type ConversationPopulated = Prisma.ConversationGetPayload<{
 export type ParticipantPopulated = Prisma.ConversationParticipantGetPayload<{
   include: typeof participatsPopulated;
 }>;
+
+
+/* MESSAGES */
+export interface SendMessageArgs {
+  id: string;
+  conversationId:string;
+  senderId: string;
+  body:string;
+  
+}
