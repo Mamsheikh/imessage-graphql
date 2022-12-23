@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { ConversationPopulated } from '../../../../../backend/src/utils/types';
 import conversationOperations from '../../../graphql/operations/conversation';
 import { ConversationsData } from '../../../utils/types';
+import SkeletonLoader from '../../common/SkeletonLoader';
 import ConversationList from './ConversationList';
 
 interface ConversationWrapperProps {
@@ -21,7 +22,7 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     loading: conversationsLoading,
     subscribeToMore,
   } = useQuery<ConversationsData, null>(
-    conversationOperations.Queries.conversations
+    conversationOperations.Queries.conversations,
   );
   const router = useRouter();
 
@@ -45,7 +46,7 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
           subscriptionData: {
             data: { conversationCreated: ConversationPopulated };
           };
-        }
+        },
       ) => {
         if (!subscriptionData.data) return prev;
 
@@ -66,16 +67,21 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     <Box
       display={{ base: conversationId ? 'none' : 'flex', md: 'flex' }}
       width={{ base: '100%', md: '400px' }}
+      flexDir='column'
+      gap={4}
       bg='whiteAlpha.50'
       py={6}
       px={3}
     >
-      {/* Skeleton lOader */}
-      <ConversationList
-        session={session}
-        conversations={conversationsData?.conversations || []}
-        onViewConversation={onViewConversation}
-      />
+      {conversationsLoading ? (
+        <SkeletonLoader count={7} height='80px' />
+      ) : (
+        <ConversationList
+          session={session}
+          conversations={conversationsData?.conversations || []}
+          onViewConversation={onViewConversation}
+        />
+      )}
     </Box>
   );
 };
