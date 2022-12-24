@@ -9,6 +9,7 @@ import {
 } from '../../../../utils/types';
 import messagesOperations from '../../../../graphql/operations/message';
 import SkeletonLoader from '../../../common/SkeletonLoader';
+import MessageItem from './MessageItem';
 
 interface MessagesProps {
   userId: string;
@@ -58,14 +59,17 @@ const Messages: React.FC<MessagesProps> = ({ conversationId, userId }) => {
     <Flex direction='column' justify='flex-end' overflow='hidden'>
       {loading && (
         <Stack spacing={4} px={4}>
-          <SkeletonLoader count={4} height='60px' />
+          <SkeletonLoader count={4} height='60px' width='100%' />
         </Stack>
       )}
       {data?.messages && (
         <Flex direction='column-reverse' overflowY='scroll' height='100%'>
           {data.messages.map((message) => (
-            // <MessageItem />
-            <div key={message.id}>{message.body}</div>
+            <MessageItem
+              key={message.id}
+              message={message}
+              sentByMe={message?.sender?.id === userId}
+            />
           ))}
         </Flex>
       )}
