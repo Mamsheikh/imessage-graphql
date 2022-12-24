@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Flex, Stack } from '@chakra-ui/react';
 import { useQuery } from '@apollo/client';
 import { toast } from 'react-hot-toast';
-import { MessagesData, MessagesVariables } from '../../../../utils/types';
+import {
+  MessagesData,
+  MessagesVariables,
+  MessageSubscriptionData,
+} from '../../../../utils/types';
 import messagesOperations from '../../../../graphql/operations/message';
 import SkeletonLoader from '../../../common/SkeletonLoader';
 
@@ -23,9 +27,33 @@ const Messages: React.FC<MessagesProps> = ({ conversationId, userId }) => {
       toast.error(message);
     },
   });
+  useEffect(() => {
+    subscribeToMoreMessages(conversationId);
+  }, [conversationId]);
   if (error) {
     return null;
   }
+
+  const subscribeToMoreMessages = (conversationId: string) => {
+    subscribeToMore({
+      document: messagesOperations.Subscription.messageSent,
+      variables: {
+        conversationId,
+      },
+      updateQuery: (prev, { subscriptionData }: MessageSubscriptionData) => {
+        if (!subscriptionData) return prev;
+
+        console.log('HERE IS SUBSCRIPTION DATA', subscriptionData);
+
+        const newMessage = subscriptionData.data.messageSent;
+
+        return Object.assign({}, prev, {
+          messages: [newMessage, ...prev.messages],
+        });
+      },
+    });
+  };
+
   return (
     <Flex direction='column' justify='flex-end' overflow='hidden'>
       {loading && (
