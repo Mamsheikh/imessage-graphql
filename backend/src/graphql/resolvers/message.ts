@@ -63,27 +63,23 @@ const resolvers = {
     },
   },
   Mutation: {
-    sendMessage: async (
+    sendMessage: async function (
       _: any,
       args: SendMessageArgs,
       context: GraphQLContext
-    ): Promise<Boolean> => {
-      const { prisma, pubsub, session } = context;
+    ): Promise<boolean> {
+      const { session, prisma, pubsub } = context;
 
       if (!session?.user) {
         throw new GraphQLError('Not authorized');
       }
 
       const { id: userId } = session.user;
-      const { id: messageId, body, conversationId, senderId } = args;
-
-      if (userId !== senderId) {
-        throw new GraphQLError('Not authorized');
-      }
+      const { id: messageId, senderId, conversationId, body } = args;
 
       try {
         /**
-         * create new message
+         * Create new message entity
          */
         const newMessage = await prisma.message.create({
           data: {
@@ -92,20 +88,30 @@ const resolvers = {
             conversationId,
             body,
           },
+          include: messagePopulated,
         });
 
+        /**
+         * Could cache this in production
+         */
         const participant = await prisma.conversationParticipant.findFirst({
           where: {
-            userId: userId,
+            userId,
             conversationId,
           },
         });
 
-        if (!participant) {
-          throw new GraphQLError('participant does not exist');
-        }
         /**
-         * update conversation entity
+         * Should always exist
+         */
+        if (!participant) {
+          throw new GraphQLError('Participant does not exist');
+        }
+
+        const { id: participantId } = participant;
+
+        /**
+         * Update conversation latestMessage
          */
         const conversation = await prisma.conversation.update({
           where: {
@@ -116,7 +122,7 @@ const resolvers = {
             participants: {
               update: {
                 where: {
-                  id: participant.id,
+                  id: participantId,
                 },
                 data: {
                   hasSeenLatestMessage: true,
@@ -138,16 +144,17 @@ const resolvers = {
         });
 
         pubsub.publish('MESSAGE_SENT', { messageSent: newMessage });
-        // pubsub.publish("CONVERSATION_UPDATED", {
-        //     conversationUpdated: {
-        //         conversation
-        //     }
-        // })
+        pubsub.publish('CONVERSATION_UPDATED', {
+          conversationUpdated: {
+            conversation,
+          },
+        });
+
+        return true;
       } catch (error) {
-        console.log('send message error', error);
+        console.log('sendMessage error', error);
         throw new GraphQLError('Error sending message');
       }
-      return true;
     },
   },
   Subscription: {
@@ -173,6 +180,7 @@ export const messagePopulated = Prisma.validator<Prisma.MessageInclude>()({
     select: {
       id: true,
       username: true,
+      // image: true,
     },
   },
 });
