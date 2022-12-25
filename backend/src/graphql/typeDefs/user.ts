@@ -4,7 +4,7 @@ const typeDefs = gql`
   type User {
     id: String
     username: String
-    image: String
+    # image: String
     email: String
     emailVerified: Boolean
   }

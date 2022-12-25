@@ -1,42 +1,50 @@
-import { gql } from "@apollo/client";
-
+import { gql } from '@apollo/client';
 
 export const MessageFields = `
     id
     sender {
         id
         username
-        image
     }
     body
     createdAt
-`
+`;
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
-    Query: {
-        messages: gql`
+  Query: {
+    messages: gql`
         query Messages($conversationId:String!){
             messages(conversationId: $conversationId){
                 ${MessageFields}
             }
         }
-        `
-    },
-    Mutation: {
-        sendMessage: gql`
-            mutation SendMessage($id:String!, $conversationId:String!, $senderId:String!, $body:String!){
-                sendMessage(id:$id, conversationId:$conversationId, senderId:$senderId, body:$body)
-            }
-        `
-    },
-    Subscription: {
-        messageSent: gql`
+        `,
+  },
+  Mutation: {
+    sendMessage: gql`
+      mutation SendMessage(
+        $id: String!
+        $conversationId: String!
+        $senderId: String!
+        $body: String!
+      ) {
+        sendMessage(
+          id: $id
+          conversationId: $conversationId
+          senderId: $senderId
+          body: $body
+        )
+      }
+    `,
+  },
+  Subscription: {
+    messageSent: gql`
         subscription messageSent($conversationId:String!) {
             messageSent(conversationId:$conversationId){
                 ${MessageFields}
             }
         }
-        `
-    }
-}
+        `,
+  },
+};
