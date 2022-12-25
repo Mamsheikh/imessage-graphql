@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { SendMessageArgs } from '../../../../../../backend/src/utils/types';
 import messageOperations from '../../../../graphql/operations/message';
+import { MessagesData } from '../../../../utils/types';
 
 interface MessageInputProps {
   session: Session;
@@ -36,6 +37,43 @@ const MessageInput: React.FC<MessageInputProps> = ({
       const { data, errors } = await sendMessage({
         variables: {
           ...newMessage,
+        },
+        /**
+         * Optimistically update UI
+         */
+        optimisticResponse: {
+          sendMessage: true,
+        },
+        update: (cache) => {
+          setMessageBody('');
+          const existing = cache.readQuery<MessagesData>({
+            query: messageOperations.Query.messages,
+            variables: { conversationId },
+          }) as MessagesData;
+
+          cache.writeQuery<MessagesData, { conversationId: string }>({
+            query: messageOperations.Query.messages,
+            variables: { conversationId },
+            data: {
+              ...existing,
+              messages: [
+                {
+                  id: messageId,
+                  body: messageBody,
+                  senderId: session.user.id,
+                  conversationId,
+                  sender: {
+                    id: session.user.id,
+                    username: session.user.username,
+                    // image: session.user.image,
+                  },
+                  createdAt: new Date(Date.now()),
+                  updatedAt: new Date(Date.now()),
+                },
+                ...existing.messages,
+              ],
+            },
+          });
         },
       });
 

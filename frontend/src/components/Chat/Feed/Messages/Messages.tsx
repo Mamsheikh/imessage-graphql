@@ -49,14 +49,17 @@ const Messages: React.FC<MessagesProps> = ({ conversationId, userId }) => {
         const newMessage = subscriptionData.data.messageSent;
 
         return Object.assign({}, prev, {
-          messages: [newMessage, ...prev.messages],
+          messages:
+            newMessage?.sender?.id === userId
+              ? prev.messages
+              : [newMessage, ...prev.messages],
         });
       },
     });
   };
 
   return (
-    <Flex direction='column' justify='flex-end' overflow='hidden'>
+    <Flex direction='column' height='100%' justify='flex-end' overflow='hidden'>
       {loading && (
         <Stack spacing={4} px={4}>
           <SkeletonLoader count={4} height='60px' width='100%' />
