@@ -22,17 +22,23 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     loading: conversationsLoading,
     subscribeToMore,
   } = useQuery<ConversationsData, null>(
-    conversationOperations.Queries.conversations,
+    conversationOperations.Queries.conversations
   );
   const router = useRouter();
 
   const { conversationId } = router.query;
-  const onViewConversation = async (conversationId: string) => {
+  const onViewConversation = async (
+    conversationId: string,
+    hasSeenLatestMessage: boolean | undefined
+  ) => {
     //push the conversatinId to the router query param
 
     router.push({ query: { conversationId } });
 
-    //2. marked the conversation as read
+    //2. marked the conversation as
+    if (hasSeenLatestMessage) return;
+
+    //markconversation as read mutation
   };
 
   const subscribeToNewConversations = () => {
@@ -46,7 +52,7 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
           subscriptionData: {
             data: { conversationCreated: ConversationPopulated };
           };
-        },
+        }
       ) => {
         if (!subscriptionData.data) return prev;
 

@@ -9,7 +9,10 @@ import ConversationItem from './ConversationItem';
 interface ConversationListProps {
   session: Session;
   conversations: Array<ConversationPopulated>;
-  onViewConversation: (conversationId: string) => void;
+  onViewConversation: (
+    conversationId: string,
+    hasSeenLatestMessage: boolean | undefined
+  ) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
@@ -40,15 +43,26 @@ const ConversationList: React.FC<ConversationListProps> = ({
         </Text>
       </Box>
       <ConversationModal session={session} isOpen={isOpen} onClose={onClose} />
-      {conversations.map((conversation) => (
-        <ConversationItem
-          conversation={conversation}
-          key={conversation.id}
-          userId={userId}
-          onClick={() => onViewConversation(conversation.id)}
-          isSelected={conversation.id === router.query.conversationId}
-        />
-      ))}
+      {conversations.map((conversation) => {
+        const participant = conversation.participants.find(
+          (p) => p.user.id === userId
+        );
+        return (
+          <ConversationItem
+            conversation={conversation}
+            key={conversation.id}
+            userId={userId}
+            onClick={() =>
+              onViewConversation(
+                conversation.id,
+                participant?.hasSeenLatestMessage
+              )
+            }
+            isSelected={conversation.id === router.query.conversationId}
+            hasSeenLatestMessage={participant?.hasSeenLatestMessage}
+          />
+        );
+      })}
     </Box>
   );
 };
