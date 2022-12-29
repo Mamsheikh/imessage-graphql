@@ -74,6 +74,44 @@ const resolvers = {
         throw new GraphQLError('error creating conversation ');
       }
     },
+    markConversationAsRead: async (
+      _: any,
+      args: { userId: string; conversationId: string },
+      context: GraphQLContext
+    ): Promise<boolean> => {
+      const { conversationId, userId } = args;
+      const { prisma, session } = context;
+
+      if (!session?.user) {
+        throw new GraphQLError('Not authorized');
+      }
+
+      try {
+        const convparticipant = await prisma.conversationParticipant.findFirst({
+          where: {
+            conversationId,
+            userId,
+          },
+        });
+
+        if (!convparticipant) {
+          throw new GraphQLError('Conversation participant not found');
+        }
+
+        await prisma.conversationParticipant.update({
+          where: {
+            id: convparticipant.id,
+          },
+          data: {
+            hasSeenLatestMessage: true,
+          },
+        });
+        return true;
+      } catch (error: any) {
+        console.log('markConversationAsRead error', error);
+        throw new GraphQLError(error?.message);
+      }
+    },
   },
   Subscription: {
     conversationCreated: {
