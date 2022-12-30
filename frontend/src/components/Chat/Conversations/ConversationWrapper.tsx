@@ -9,6 +9,7 @@ import {
 } from '../../../../../backend/src/utils/types';
 import conversationOperations from '../../../graphql/operations/conversation';
 import {
+  ConversationDeletedData,
   ConversationsData,
   ConversationUpdatedData,
 } from '../../../utils/types';
@@ -49,6 +50,39 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
         if (currentlyViewingConversation) {
           onViewConversation(conversationId, false);
         }
+      },
+    }
+  );
+
+  useSubscription<ConversationDeletedData, null>(
+    conversationOperations.Subscriptions.conversationDeleted,
+    {
+      onData: ({ client, data }) => {
+        const { data: subscriptionData } = data;
+
+        if (!subscriptionData) return;
+
+        const existing = client.readQuery<ConversationsData>({
+          query: conversationOperations.Queries.conversations,
+        });
+
+        if (!existing) return;
+        const { conversations } = existing;
+
+        const {
+          conversationDeleted: { id: deletedConversationId },
+        } = subscriptionData;
+
+        client.writeQuery<ConversationsData>({
+          query: conversationOperations.Queries.conversations,
+          data: {
+            conversations: conversations.filter(
+              (conversation) => conversation.id !== deletedConversationId
+            ),
+          },
+        });
+
+        router.push('/');
       },
     }
   );
@@ -182,7 +216,7 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
   return (
     <Box
       display={{ base: conversationId ? 'none' : 'flex', md: 'flex' }}
-      width={{ base: '100%', md: '400px' }}
+      width={{ base: '100%', md: '430px' }}
       flexDir='column'
       gap={4}
       bg='whiteAlpha.50'
