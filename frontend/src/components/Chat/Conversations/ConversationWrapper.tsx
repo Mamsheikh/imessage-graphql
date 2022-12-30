@@ -1,9 +1,12 @@
-import { useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { ConversationPopulated } from '../../../../../backend/src/utils/types';
+import {
+  ConversationPopulated,
+  ParticipantPopulated,
+} from '../../../../../backend/src/utils/types';
 import conversationOperations from '../../../graphql/operations/conversation';
 import { ConversationsData } from '../../../utils/types';
 import SkeletonLoader from '../../common/SkeletonLoader';
@@ -16,6 +19,7 @@ interface ConversationWrapperProps {
 const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
   session,
 }) => {
+  const router = useRouter();
   const {
     data: conversationsData,
     error: conversationsError,
@@ -24,23 +28,105 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
   } = useQuery<ConversationsData, null>(
     conversationOperations.Queries.conversations
   );
-  const router = useRouter();
 
+  const [markConversationAsRead] = useMutation<
+    { markConversationAsRead: boolean },
+    { conversationId: string; userId: string }
+  >(conversationOperations.Mutations.markConversationAsRead);
   const { conversationId } = router.query;
+  const { id: userId } = session.user;
+
   const onViewConversation = async (
     conversationId: string,
     hasSeenLatestMessage: boolean | undefined
   ) => {
-    //push the conversatinId to the router query param
-
     router.push({ query: { conversationId } });
 
-    //2. marked the conversation as
+    /**
+     * Only mark as read if conversation is unread
+     */
     if (hasSeenLatestMessage) return;
 
-    //markconversation as read mutation
-  };
+    try {
+      await markConversationAsRead({
+        variables: {
+          userId,
+          conversationId,
+        },
+        optimisticResponse: {
+          markConversationAsRead: true,
+        },
+        update: (cache) => {
+          /**
+           * Get conversation participants
+           * from cache
+           */
+          const participantsFragment = cache.readFragment<{
+            participants: Array<ParticipantPopulated>;
+          }>({
+            id: `Conversation:${conversationId}`,
+            fragment: gql`
+              fragment Participants on Conversation {
+                participants {
+                  user {
+                    id
+                    username
+                  }
+                  hasSeenLatestMessage
+                }
+              }
+            `,
+          });
 
+          if (!participantsFragment) return;
+
+          /**
+           * Create copy to
+           * allow mutation
+           */
+          const participants = [...participantsFragment.participants];
+
+          const userParticipantIdx = participants.findIndex(
+            (p) => p.user.id === userId
+          );
+
+          /**
+           * Should always be found
+           * but just in case
+           */
+          if (userParticipantIdx === -1) return;
+
+          const userParticipant = participants[userParticipantIdx];
+
+          /**
+           * Update user to show latest
+           * message as read
+           */
+          participants[userParticipantIdx] = {
+            ...userParticipant,
+            hasSeenLatestMessage: true,
+          };
+
+          /**
+           * Update cache
+           */
+          cache.writeFragment({
+            id: `Conversation:${conversationId}`,
+            fragment: gql`
+              fragment UpdatedParticipants on Conversation {
+                participants
+              }
+            `,
+            data: {
+              participants,
+            },
+          });
+        },
+      });
+    } catch (error) {
+      console.log('onViewConversation error', error);
+    }
+  };
   const subscribeToNewConversations = () => {
     subscribeToMore({
       document: conversationOperations.Subscriptions.conversationCreated,
