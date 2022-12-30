@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';
-import { userIsParticipant } from '../../utils/functions';
+import { userIsConversationParticipant } from '../../utils/functions';
 import {
   GraphQLContext,
   MessagePopulated,
@@ -35,7 +35,7 @@ const resolvers = {
         throw new GraphQLError('conversation not found');
       }
 
-      const allowedToView = userIsParticipant(
+      const allowedToView = userIsConversationParticipant(
         conversation.participants,
         userId
       );

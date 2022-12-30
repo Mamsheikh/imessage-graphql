@@ -48,6 +48,12 @@ export interface ConversationsData {
   conversations: Array<ConversationPopulated>;
 }
 
+export interface ConversationUpdatedData {
+  conversationUpdated: {
+    conversation: ConversationPopulated;
+  };
+}
+
 /**
  * Messages
  */

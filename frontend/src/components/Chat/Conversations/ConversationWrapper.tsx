@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
@@ -8,7 +8,10 @@ import {
   ParticipantPopulated,
 } from '../../../../../backend/src/utils/types';
 import conversationOperations from '../../../graphql/operations/conversation';
-import { ConversationsData } from '../../../utils/types';
+import {
+  ConversationsData,
+  ConversationUpdatedData,
+} from '../../../utils/types';
 import SkeletonLoader from '../../common/SkeletonLoader';
 import ConversationList from './ConversationList';
 
@@ -27,6 +30,27 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     subscribeToMore,
   } = useQuery<ConversationsData, null>(
     conversationOperations.Queries.conversations
+  );
+
+  useSubscription<ConversationUpdatedData, null>(
+    conversationOperations.Subscriptions.conversationUpdated,
+    {
+      onData: ({ client, data }) => {
+        const { data: subscribtionData } = data;
+
+        if (!subscribtionData) return;
+
+        const {
+          conversationUpdated: { conversation },
+        } = subscribtionData;
+
+        const currentlyViewingConversation = conversation.id === conversationId;
+
+        if (currentlyViewingConversation) {
+          onViewConversation(conversationId, false);
+        }
+      },
+    }
   );
 
   const [markConversationAsRead] = useMutation<
