@@ -3,6 +3,7 @@ import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';
 import { userIsConversationParticipant } from '../../utils/functions';
 import {
+  ConversationDeletedSubscriptionPayload,
   ConversationPopulated,
   ConversationUpdatedSubscriptionPayload,
   GraphQLContext,
@@ -227,6 +228,32 @@ const resolvers = {
             userId
           );
           return userIsParticipant;
+        }
+      ),
+    },
+    conversationDeleted: {
+      subscribe: withFilter(
+        (_: any, __: any, context: GraphQLContext) => {
+          const { pubsub } = context;
+
+          return pubsub.asyncIterator(['CONVERSATION_DELETED']);
+        },
+        (
+          payload: ConversationDeletedSubscriptionPayload,
+          _: any,
+          context: GraphQLContext
+        ) => {
+          const { session } = context;
+          if (!session?.user) {
+            throw new GraphQLError('Not authorized');
+          }
+
+          const { id: userId } = session.user;
+
+          const {
+            conversationDeleted: { participants },
+          } = payload;
+          return userIsConversationParticipant(participants, userId);
         }
       ),
     },

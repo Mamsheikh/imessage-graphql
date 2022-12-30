@@ -16,6 +16,9 @@ const typeDefs = gql`
     conversation: Conversation
   }
 
+  type ConversationDeletedSubscriptionPayload {
+    id: String
+  }
   type Query {
     conversations: [Conversation]
   }
@@ -37,6 +40,7 @@ const typeDefs = gql`
   type Subscription {
     conversationCreated: Conversation
     conversationUpdated: ConversationUpdatedSubscriptionPayload
+    conversationDeleted: ConversationDeletedSubscriptionPayload
   }
 `;
 

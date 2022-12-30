@@ -55,6 +55,10 @@ export interface ConversationUpdatedSubscriptionPayload {
   };
 }
 
+export interface ConversationDeletedSubscriptionPayload {
+  conversationDeleted: ConversationPopulated;
+}
+
 /* MESSAGES */
 export interface SendMessageArgs {
   id: string;
