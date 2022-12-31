@@ -71,9 +71,7 @@ export default {
     conversationDeleted: gql`
       subscription ConversationDeleted {
         conversationDeleted {
-          conversation {
-            id
-          }
+          id
         }
       }
     `,

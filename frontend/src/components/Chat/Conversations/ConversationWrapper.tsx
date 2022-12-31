@@ -59,6 +59,7 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     {
       onData: ({ client, data }) => {
         const { data: subscriptionData } = data;
+        console.log('HERE IS SUB DATA', subscriptionData);
 
         if (!subscriptionData) return;
 
@@ -67,8 +68,8 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
         });
 
         if (!existing) return;
-        const { conversations } = existing;
 
+        const { conversations } = existing;
         const {
           conversationDeleted: { id: deletedConversationId },
         } = subscriptionData;
